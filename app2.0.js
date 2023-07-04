@@ -22,40 +22,33 @@ client.on ('qr', (qr)=>{
     qrcode.generate(qr,{small:true})
 });
 
-
-//Cuando se logra la conexion entrara en el siguiente bloque de codigo.
+//Cuando se logra la conexión entrara en el siguiente bloque de codigo.
 client.on ('ready', ()=>{
     console.log('Nueva sesion creada')
 
     client.on ('message_create', async (msg) => {
         console.log ('sended:',msg.body + "\n"+"Enviado por mi:" + msg.fromMe)     
         console.log(msg.body)
-        //!MASIVO es la palabra clave para el empezar el envio
-        //msj.body.trim()
-        if (msg.fromMe){
-            console.log("Check-N-2")
+
+        //Check-N es la palabra clave para empezar la verificación
+        if (msg.body == 'Check-N'){
+
+            console.log("Comenzando verificación...")
     
             //Apartir de aqui se trabajara con el excel con la lista de números a verificar
             const readerS = require ('xlsx');  
-            //IndicadorMasivo = true
             
              //Se definen las las variables para leer el archivo excel
             const dat = readerS.readFile(route);
             let sheet_name_list= dat.SheetNames
             let xlData = readerS.utils.sheet_to_json(dat.Sheets[sheet_name_list[0]])
-            //console.log (xlData)
     
             //Se recorre el arreglo que tiene la informacion del excel
             console.log("Total de números a verificar: ")
             console.log(xlData.length)
-            console.log("Listado de números a verificar:")
-            
-            //Variable utilizadas en el momento que se recorre el excel
-            //let i = 0;
-            let j = 0;
 
             for (let D of xlData){
-                await delay(5000); // Espera 5 segundos antes de cada iteración
+                await delay(6000); // Espera 6 segundos antes de cada iteración
                 console.log(D.NUMERO)
                 let number = '506' + D.NUMERO
                 number = number.split(" ").join("")
@@ -63,7 +56,6 @@ client.on ('ready', ()=>{
                 let IDMSJ = D.IDMSG
                 let now = new Date()
                 let fecha = now.toLocaleDateString()
-                j = j+1;
                 //por cada recorrido al arreglo se verifica que el numero este registrado en whatsapp
                 client.isRegisteredUser(chatid).then(function(isRegistered) {
                     if(isRegistered) {
@@ -76,11 +68,11 @@ client.on ('ready', ()=>{
                 });
             }
             generarReporte();
-
         }
     });//fin de la funcion client.on     
 });
 
+//Función para generar el informe en la ubicación especificada arriba
 function generarReporte(){
     setTimeout(() => {
         if (REG.length > 1) {
@@ -110,6 +102,7 @@ function generarReporte(){
     }, 3000);//se indica que la funcion se ejecutará despues de 3 segundos
 }
 
+//Función para ingresar pausa en la ejecucion del código
 function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+}
